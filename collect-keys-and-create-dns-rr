@@ -24,7 +24,7 @@ OpensslOpts=" dgst -sha1 -hex"
 Base64=/usr/bin/base64
 Base64Opts=" -d"
 
-if [ $# -ne 2 ]
+if [ $# -ne 1 ]
 then
   echo "Error in $0 - Invalid Argument Count"
   echo "\nusage:\t$0 input_file"

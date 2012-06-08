@@ -24,8 +24,16 @@ OpensslOpts=" dgst -sha1 -hex"
 Base64=/usr/bin/base64
 Base64Opts=" -d"
 
-if [ ! -f $1 ] || [ ! -r $1 ]; then
-  echo "file -$1- not found or not readable"
+if [ $# -ne 2 ]
+then
+  echo "Error in $0 - Invalid Argument Count"
+  echo "\nusage:\t$0 input_file"
+  echo "---"
+  echo "\tinput_file: text file including one hostname or IP per line\n"
+  exit 1
+fi
+if [ ! -r $1 ]; then
+  echo "file -$1- not readable"
   exit 1
 fi
 

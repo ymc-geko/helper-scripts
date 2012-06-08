@@ -1,0 +1,60 @@
+#!/bin/sh
+# Script to create sshfp dns-rr to be used e.g. in dnsmasq.conf (dnsmasq >= 2.62)
+
+# The script checks each host contained in the text file provided as parameter
+# to this script.
+
+#
+# This script is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This package is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# Initially written by Gerd Koenig, 2012/06/05, gerd.koenig@ymc.ch
+
+Ping=/bin/ping
+PingOpts=" -W 1 -c 1"
+Openssl=/usr/bin/openssl
+OpensslOpts=" dgst -sha1 -hex"
+Base64=/usr/bin/base64
+Base64Opts=" -d"
+
+if [ ! -f $1 ] || [ ! -r $1 ]; then
+  echo "file -$1- not found or not readable"
+  exit 1
+fi
+
+for host in $(cat $1); do
+  ## check if host is alive
+  $Ping $PingOpts $host >/dev/null 2>&1
+  if [ "$?" -eq "0" ]; then
+    sshfpRsa=""
+    sshfpDsa=""
+    ## calling host for the keys and generate sshfp if applicable
+    rsaKey=$(ssh-keyscan -t rsa $host 2>/dev/null | awk '{print $3}')
+    if [ ! -z $rsaKey ]; then
+      sshfpRsa=$(echo $rsaKey | $Base64 $Base64Opts | $Openssl $OpensslOpts)
+    fi
+    dsaKey=$(ssh-keyscan -t dsa $host 2>/dev/null | awk '{print $3}')
+    if [ ! -z $dsaKey ]; then
+      sshfpDsa=$(echo $k | $Base64 $Base64Opts | $Openssl $OpensslOpts)
+    fi
+    ## print out the arbitrary sshfp dns-rr
+    if [ ! -z $sshfpRsa ]; then
+      echo "dns-rr=$host,44,1:1:$sshfpRsa"
+    fi
+    if [ ! -z $sshfpDsa ]; then
+      echo "dns-rr=$host,44,2:1:$sshfpDsa"
+    fi
+  else
+    echo "$host not reachable"
+  fi
+done
+
+exit 0
+

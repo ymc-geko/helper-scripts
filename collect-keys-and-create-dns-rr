@@ -50,7 +50,7 @@ for host in $(cat $1); do
     fi
     dsaKey=$(ssh-keyscan -t dsa $host 2>/dev/null | awk '{print $3}')
     if [ ! -z $dsaKey ]; then
-      sshfpDsa=$(echo $k | $Base64 $Base64Opts | $Openssl $OpensslOpts)
+      sshfpDsa=$(echo $dsaKey | $Base64 $Base64Opts | $Openssl $OpensslOpts)
     fi
     ## print out the arbitrary sshfp dns-rr
     if [ ! -z $sshfpRsa ]; then

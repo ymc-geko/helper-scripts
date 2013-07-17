@@ -1,4 +1,4 @@
-#/bin/bash -x
+#/bin/bash
 #
 # Description:
 #   deletes the given line in the known_hosts file
